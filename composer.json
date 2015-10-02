@@ -24,7 +24,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "TreeHouse\\ConanWorkerBundle\\": "src/TreeHouse/ConanWorkerBundle/"
+      "TreeHouse\\ConanWorkerBundle\\": "src/ConanWorkerBundle/"
     }
   }
 }
