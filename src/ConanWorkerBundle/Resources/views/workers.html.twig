@@ -1,0 +1,82 @@
+{% extends "FMConanBundle::base.html.twig" %}
+
+{% set body_class = body_class|default('') ~ ' worker' %}
+
+{% block context_menu '' %}
+
+{% block content %}
+{% spaceless %}
+  <p class="alert alert-info">Beanstalk versie <strong>{{ stats.version }}</strong>, opgestart <strong>{{ relatize_date('now'|date_modify('- %d seconds'|format(stats.uptime))) }}</strong>.</p>
+
+  {% set keys = {
+    'current-watching': 'Workers',
+    'current-jobs-ready': 'Wachtend',
+    'current-jobs-urgent': 'Urgent',
+    'current-jobs-reserved': 'In behandeling',
+    'current-jobs-delayed': 'Uitgesteld',
+    'current-jobs-buried': 'Fouten',
+  } %}
+
+  <table class="table table-striped tubes">
+    <col width="20%">
+    <col width="5%">
+    <col width="1%">
+    {% for key, title in keys %}
+    <col width="5%">
+    {% endfor %}
+    <thead>
+      <tr>
+        <th class="tube">Taak</th>
+        <th class="graph"></th>
+        <th class="timing stat">Time Avg</th>
+        {% for key, title in keys %}
+          <th class="{{ key }} stat">{{ title }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for tube, stats in tubes %}
+        <tr>
+          <td class="tube"><a href="{{ cms_action_route(cms_action('workers')) }}?tube={{ tube }}">{{ tube }}</a></td>
+          <td class="graph"><span class="sparkline" data-update="1000" data-callback="updateGraph" data-highlight="false">{{ stats['rpm']|join(',') }}</span></td>
+          <td class="timing stat">{{ stats['timing_avg'] }}&nbsp;<small>ms</small></td>
+          {% for key, title in keys %}
+              <td data-update="1000" class="{{ key }} stat">
+                {{ stats[key] }}
+
+                {% if stats[key] > 0 %}
+                  {% if key == 'current-jobs-buried' %}
+                      {#<a href="{{ cms_action('queue-tubes/queue-delete-buried/', {'tube': tube}) }}" class="" title="Verwijder buried jobs"><i class="icon-trash"></i></a>#}
+                  {% endif %}
+                {% endif %}
+              </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endspaceless %}
+{% endblock %}
+
+{% block external_scripts %}
+  {{ parent() }}
+  <script src="{{ asset('bundles/treehouseconanworker/js/jquery.sparkline.min.js') }}"></script>
+  <script src="{{ asset('bundles/treehouseconanworker/js/jquery.color-2.1.2.min.js') }}"></script>
+  <script src="{{ asset('bundles/treehouseconanworker/js/jquery.update.js') }}"></script>
+{% endblock %}
+
+{% block script %}
+  function updateGraph($el) {
+    $($el).sparkline("html", {
+      type: 'line',
+      width: '150px',
+      height: '25px',
+      zeroColor: '#CC00000',
+      chartRangeMin: 0
+    });
+  }
+
+  $(document).ready(function () {
+    updateGraph($('.sparkline'));
+  });
+{% endblock %}

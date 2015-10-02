@@ -1,0 +1,48 @@
+{% extends "FMConanBundle::base.html.twig" %}
+
+{% set title = tube %}
+{% set body_class = body_class|default('') ~ ' worker' %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li><a href="{{ cms_action_route(cms_action('workers')) }}" rel="prev">
+        ← Workers
+      </a></li>
+    <li class="active"><a href="{{ cms_action_route(cms_action('workers')) }}?tube={{ tube }}">
+        {{ tube }}
+      </a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  {% set keys = {
+  'current-watching': 'Workers',
+  'current-jobs-ready': 'Wachtend',
+  'current-jobs-urgent': 'Urgent',
+  'current-jobs-reserved': 'In behandeling',
+  'current-jobs-delayed': 'Uitgesteld',
+  'current-jobs-buried': 'Fouten',
+  } %}
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div id="buckets-container">
+        <div id="graph"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  {{ parent() }}
+
+  var graph = new StatisticoGraph(
+    $('#graph'),
+    'Jobs executed',
+    '{{ cms_action_route(cms_action('workers')) }}?tube={{ tube }}&json=1'
+  );
+
+  setInterval(function() {
+    graph.render();
+  }, 1000);
+{% endblock %}

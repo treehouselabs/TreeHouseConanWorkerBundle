@@ -1,0 +1,30 @@
+{
+  "name": "treehouselabs/conan-worker-bundle",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git@github.com:treehouselabs/FMConanBundle.git"
+    },
+    {
+      "type": "git",
+      "url": "git@github.com:treehouselabs/TreeHouseConanStatisticoBundle.git"
+    }
+  ],
+  "require": {
+    "fm/conan-bundle": "dev-master",
+    "fieg/statistico": "~2.0",
+    "treehouselabs/worker-bundle": "~1.0",
+    "treehouselabs/conan-statistico-bundle":"*"
+  },
+  "authors": [
+    {
+      "name": "Jeroen Fiege",
+      "email": "jeroen@treehouse.nl"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "TreeHouse\\ConanWorkerBundle\\": "src/TreeHouse/ConanWorkerBundle/"
+    }
+  }
+}

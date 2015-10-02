@@ -1,0 +1,7 @@
+services:
+  tree_house.conan_worker.listener.worker_statistico:
+    class: TreeHouse\ConanWorkerBundle\EventListener\WorkerStatisticoListener
+    arguments: [@statistico]
+    tags:
+      - { name: kernel.event_listener, event: 'worker.action.execute.pre', method: onPreJobExecute }
+      - { name: kernel.event_listener, event: 'worker.action.execute.post', method: onPostJobExecute }
