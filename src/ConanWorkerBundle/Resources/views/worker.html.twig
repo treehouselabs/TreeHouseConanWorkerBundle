@@ -42,7 +42,11 @@
     '{{ cms_action_route(cms_action('workers')) }}?tube={{ tube }}&json=1'
   );
 
-  setInterval(function() {
-    graph.render();
-  }, 1000);
+  graph.onComplete = function() {
+    setTimeout(function() {
+      graph.render();
+    }, 5000);
+  };
+
+  graph.render();
 {% endblock %}

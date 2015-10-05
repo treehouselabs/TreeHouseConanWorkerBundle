@@ -138,7 +138,7 @@ class Workers extends CustomAction
         $from = new \DateTime('-30 minutes');
         $to = null;
 
-        $rpm = $statisticoReader->queryCounts('job.'. $tube, $granularity, $from);
+        $rpm = $statisticoReader->queryCounts('job.execute.'. $tube, $granularity, $from);
         $rpm = $this->completeCountsData($rpm, $factor, $from, $to);
 
         $data['rpm'] = $rpm;
