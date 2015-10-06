@@ -32,7 +32,7 @@ Configure the cronjob to collect statistics:
 
 in `salt/roots/pillar/common.sls`:
 
-```
+```yml
 worker:
   crons:
     ...
