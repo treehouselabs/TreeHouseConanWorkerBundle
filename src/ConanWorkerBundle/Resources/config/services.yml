@@ -5,3 +5,12 @@ services:
     tags:
       - { name: kernel.event_listener, event: 'worker.action.execute.pre', method: onPreJobExecute }
       - { name: kernel.event_listener, event: 'worker.action.execute.post', method: onPostJobExecute }
+
+
+  tree_house.conan_worker.command.collection_statistics:
+    class: TreeHouse\ConanWorkerBundle\Command\CollectStatisticsCommand
+    arguments:
+      - @tree_house.worker.queue_manager
+      - @statistico
+    tags:
+      - { name: console.command }

@@ -26,3 +26,15 @@ fm_conan:
     - /bundles/treehouseconanstatistico/js/metricsgraphics.js
     - /bundles/treehouseconanstatistico/js/statistico.js
 ```
+
+
+Configure the cronjob to collect statistics:
+
+in `salt/roots/pillar/common.sls`:
+
+```
+worker:
+  crons:
+    ...
+    - { name: 'conan:worker:collect-statistics', minute: * }
+```

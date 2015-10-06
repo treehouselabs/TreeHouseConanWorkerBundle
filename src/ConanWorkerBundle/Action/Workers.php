@@ -27,9 +27,56 @@ class Workers extends CustomAction
             $this->template = 'TreeHouseConanWorkerBundle::worker.html.twig';
 
             return array_merge($this->getActionData(), $this->getTubeData($this->request, $tube));
+        } else if ($bucket = $this->request->get('bucket')) {
+            $type = $this->request->get('type', 'counts');
+
+            return $this->getBucketData($this->request, $bucket, $type);
         }
 
         return parent::execute($request);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param $bucket
+     *
+     * @return array
+     *
+     * @throws DirectResponseException
+     */
+    public function getBucketData(Request $request, $bucket, $type)
+    {
+        /** @var Reader $reader */
+        $reader = $this->getConfig()->get('statistico.reader');
+
+        $granularity = 'minutes';
+        $factor = 60;
+        $from = new \DateTime('-30 minutes');
+        $to = null;
+
+        switch ($type) {
+            case "counts":
+                $counts = $reader->queryCounts($bucket, $granularity, $from, $to);
+                $counts = $this->completeCountsData($counts, $factor, $from, $to);
+                break;
+            case "gauges":
+                $counts = $reader->queryGauges($bucket, $granularity, $from, $to);
+                $counts = $this->completeGaugesData($counts, $factor, $from, $to);
+                break;
+        }
+
+        $retval = [
+            'series' => [],
+            'from' => $from->getTimestamp(),
+            'to' => (new \DateTime())->getTimestamp(),
+        ];
+
+        foreach ($counts as $timestamp => $count) {
+            $retval['series'][] = ['date' => (string) $timestamp, 'count' => $count];
+        }
+
+        throw new DirectResponseException(new JsonResponse($retval));
     }
 
     /**
@@ -209,6 +256,48 @@ class Workers extends CustomAction
 
         for ($t = $min; $t <= $max; $t += $factor) {
             $retval[$t] = isset($data[$t]) ? $data[$t] : 0;
+        }
+
+        return $retval;
+    }
+
+    /**
+     * @param array $data
+     * @param int $factor
+     * @param \DateTime $from
+     * @param \DateTime $to
+     *
+     * @return array
+     */
+    protected function completeGaugesData(
+        array $data,
+        $factor,
+        \DateTime $from,
+        \DateTime $to = null
+    ) {
+        reset($data);
+
+        $to = $to ?: new \DateTime();
+
+        // factor diff
+        $mod = ($from->getTimestamp() % $factor);
+
+        if ($data) {
+            $min = min($from->getTimestamp() - $mod, key($data)); // first key
+        } else {
+            $min = $from->getTimestamp();
+        }
+
+        $max = $to->getTimestamp();
+
+        $retval = [];
+
+        $previous = 0;
+
+        for ($t = $min; $t <= $max; $t += $factor) {
+            $retval[$t] = isset($data[$t]) ? $data[$t] : $previous;
+
+            $previous = $retval[$t];
         }
 
         return $retval;
