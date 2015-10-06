@@ -7,3 +7,9 @@
 th.stat, td.stat {
     text-align: right;
 }
+
+.graph {
+    min-height: 210px;
+    border: solid 1px #fafafa;
+    margin-bottom: 10px;
+}
