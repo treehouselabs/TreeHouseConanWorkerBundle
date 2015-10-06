@@ -36,5 +36,5 @@ in `salt/roots/pillar/common.sls`:
 worker:
   crons:
     ...
-    - { name: 'conan:worker:collect-statistics', minute: * }
+    - { name: 'conan:worker:collect-statistics', minute: '*' }
 ```
